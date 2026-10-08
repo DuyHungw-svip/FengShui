@@ -1,8 +1,8 @@
-<header class="header header--mobile" data-sticky="{{ theme_option('sticky_header_mobile_enabled', 'yes') == 'yes' ? 'true' : 'false' }}">
+<header class="header header--mobile header--feng-shui-mobile" data-sticky="{{ theme_option('sticky_header_mobile_enabled', 'yes') == 'yes' ? 'true' : 'false' }}">
     <div class="navigation--mobile">
         <div class="navigation__left">
             <a class="ps-logo" href="{{ BaseHelper::getHomepageUrl() }}">
-                {!! Theme::getLogoImage(['style' => 'max-height: 40px']) !!}
+                {!! Theme::partial('header-brand') !!}
             </a>
         </div>
         @if (is_plugin_active('ecommerce'))

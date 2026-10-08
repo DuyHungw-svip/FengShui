@@ -13,7 +13,7 @@
 
         {!! Theme::get('topHeader') !!}
 
-        <header class="header header--1" data-sticky="{{ Theme::get('stickyHeader', theme_option('sticky_header_enabled', 'yes') == 'yes' ? 'true' : 'false') }}">
+        <header class="header header--1 header--feng-shui" data-sticky="{{ Theme::get('stickyHeader', theme_option('sticky_header_enabled', 'yes') == 'yes' ? 'true' : 'false') }}">
             <div class="header__top">
                 <div class="ps-container align-items-center">
                     @if (is_plugin_active('ecommerce'))
@@ -30,7 +30,7 @@
                                 </div>
                             </div>
                             <a class="ps-logo" href="{{ BaseHelper::getHomepageUrl() }}">
-                                {!! Theme::getLogoImage(['style' => 'max-height: 40px']) !!}
+                                {!! Theme::partial('header-brand') !!}
                             </a>
                         </div>
                         <div class="header__center">
@@ -46,7 +46,7 @@
                                 <div class="spinner-icon">
                                     <i class="fa fa-spin fa-spinner"></i>
                                 </div>
-                                <button type="submit">{{ __('Search') }}</button>
+                                <button type="submit"><i class="icon-magnifier" aria-hidden="true"></i><span>{{ __('Search') }}</span></button>
                                 <div class="ps-panel--search-result"></div>
                             </form>
                         </div>
@@ -71,12 +71,15 @@
                                 <div class="ps-block--user-header">
                                     <div class="ps-block__left"><i class="icon-user"></i></div>
                                     <div class="ps-block__right">
+                                        <span class="header__account-label">{{ __('Account') }}</span>
+                                        <div class="header__account-links">
                                         @if (auth('customer')->check())
                                             <a href="{{ route('customer.overview') }}" class="customer-name">{{ auth('customer')->user()->name }}</a>
                                             <a href="{{ route('customer.logout') }}">{{ __('Logout') }}</a>
                                         @else
                                             <a href="{{ route('customer.login') }}">{{ __('Login') }}</a><a href="{{ route('customer.register') }}">{{ __('Register') }}</a>
                                         @endif
+                                        </div>
                                     </div>
                                 </div>
                             </div>

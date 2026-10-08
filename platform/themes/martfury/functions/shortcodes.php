@@ -133,6 +133,392 @@ app()->booted(function (): void {
         return $form;
     });
 
+    add_shortcode('BlogFengShui', __('BlogFengShui'), __('Blog Feng Shui card section'), function (Shortcode $shortcode) {
+        return Theme::partial('short-codes.blog-feng-shui', compact('shortcode'));
+    });
+
+    shortcode()->setAdminConfig('BlogFengShui', function (array $attributes) {
+        $form = ShortcodeForm::createFromArray($attributes)
+            ->withLazyLoading()
+            ->add(
+                'eyebrow',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('Eyebrow'))
+                    ->placeholder(__('Eyebrow'))
+                    ->defaultValue('Thực Chứng Học Thuật')
+            )
+            ->add(
+                'title',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('Title'))
+                    ->placeholder(__('Title'))
+                    ->defaultValue('Tứ Pháp Bí Truyền Ứng Dụng')
+            );
+
+        $cardDefaults = [
+            1 => [
+                'label' => 'Hạp Thể Tương Sinh',
+                'title' => 'Mệnh & Ngũ Hành',
+                'description' => 'Phân định màu sắc tương hợp, chất liệu bổ trợ, xác định hướng Cát - Hung chuẩn xác theo Cung phi chính tông.',
+                'action_label' => 'Khám phá ngũ hành',
+                'url' => '#',
+                'icon' => 'ti ti-sparkles',
+            ],
+            2 => [
+                'kicker' => '12 Cung Chức Vị',
+                'label' => 'Đẩu Số Mệnh Bàn',
+                'title' => 'Tử Vi Bát Tự',
+                'description' => 'An sao lập bàn 12 cung chức vị: Mệnh, Phu, Phúc, Điền, Quan, Nô... Giải mã đại hạn 10 năm và lưu niên cát triệu.',
+                'action_label' => 'Lập bản bát tự',
+                'url' => '#',
+                'icon' => 'ti ti-book',
+            ],
+            3 => [
+                'kicker' => 'Hoàng Đạo Cát Nhật',
+                'label' => 'Lịch Trực Khai Hoa',
+                'title' => 'Ngày Tốt Vạn Sự',
+                'description' => 'Chọn giờ Hoàng đạo, ngày Trực Kiến - Trừ - Mãn cho hỷ sự, động thổ, xuất hành và lễ nghi khánh thành hưng nghiệp.',
+                'action_label' => 'Tra ngày cát lợi',
+                'url' => '#',
+                'icon' => 'ti ti-calendar-check',
+            ],
+            4 => [
+                'label' => 'Bát Trạch Trực Nghiệm',
+                'title' => 'Bát Trạch Nhà Ở',
+                'description' => 'Bố trí Minh đường, tọa hướng Môn - Táo - Thờ, hóa giải loan đầu hình sát bên ngoài và tụ dưỡng nội khí trường.',
+                'action_label' => 'Thẩm định dương trạch',
+                'url' => '#',
+                'icon' => 'ti ti-compass',
+            ],
+        ];
+
+        for ($i = 1; $i <= 4; $i++) {
+            $form
+                ->add(
+                    'card_' . $i . '_image',
+                    MediaImageField::class,
+                    MediaImageFieldOption::make()
+                        ->label(__('Card :number image', ['number' => $i]))
+                )
+                ->add(
+                    'card_' . $i . '_kicker',
+                    TextField::class,
+                    TextFieldOption::make()
+                        ->label(__('Card :number kicker', ['number' => $i]))
+                        ->placeholder(__('Card :number kicker', ['number' => $i]))
+                        ->defaultValue($cardDefaults[$i]['kicker'] ?? '')
+                )
+                ->add(
+                    'card_' . $i . '_label',
+                    TextField::class,
+                    TextFieldOption::make()
+                        ->label(__('Card :number label', ['number' => $i]))
+                        ->placeholder(__('Card :number label', ['number' => $i]))
+                        ->defaultValue($cardDefaults[$i]['label'])
+                )
+                ->add(
+                    'card_' . $i . '_title',
+                    TextField::class,
+                    TextFieldOption::make()
+                        ->label(__('Card :number title', ['number' => $i]))
+                        ->placeholder(__('Card :number title', ['number' => $i]))
+                        ->defaultValue($cardDefaults[$i]['title'])
+                )
+                ->add(
+                    'card_' . $i . '_description',
+                    TextareaField::class,
+                    TextareaFieldOption::make()
+                        ->label(__('Card :number description', ['number' => $i]))
+                        ->placeholder(__('Card :number description', ['number' => $i]))
+                        ->rows(3)
+                        ->defaultValue($cardDefaults[$i]['description'])
+                )
+                ->add(
+                    'card_' . $i . '_action_label',
+                    TextField::class,
+                    TextFieldOption::make()
+                        ->label(__('Card :number action label', ['number' => $i]))
+                        ->placeholder(__('Card :number action label', ['number' => $i]))
+                        ->defaultValue($cardDefaults[$i]['action_label'])
+                )
+                ->add(
+                    'card_' . $i . '_url',
+                    TextField::class,
+                    TextFieldOption::make()
+                        ->label(__('Card :number URL', ['number' => $i]))
+                        ->placeholder(__('Card :number URL', ['number' => $i]))
+                        ->defaultValue($cardDefaults[$i]['url'])
+                )
+                ->add(
+                    'card_' . $i . '_icon',
+                    CoreIconField::class,
+                    CoreIconFieldOption::make()
+                        ->label(__('Card :number icon', ['number' => $i]))
+                        ->defaultValue($cardDefaults[$i]['icon'])
+                );
+        }
+
+        return $form;
+    });
+
+    add_shortcode('BlogFengShui2', __('BlogFengShui2'), __('Blog Feng Shui featured article section'), function (Shortcode $shortcode) {
+        return Theme::partial('short-codes.blog-feng-shui-2', compact('shortcode'));
+    });
+
+    shortcode()->setAdminConfig('BlogFengShui2', function (array $attributes) {
+        $form = ShortcodeForm::createFromArray($attributes)
+            ->withLazyLoading()
+            ->add(
+                'eyebrow',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('Eyebrow'))
+                    ->placeholder(__('Eyebrow'))
+                    ->defaultValue('Thực Địa Ứng Dụng')
+            )
+            ->add(
+                'title',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('Title'))
+                    ->placeholder(__('Title'))
+                    ->defaultValue('Cẩm Nang Dịch Lý Nhà Ở Đương Đại')
+            )
+            ->add(
+                'subtitle',
+                TextareaField::class,
+                TextareaFieldOption::make()
+                    ->label(__('Subtitle'))
+                    ->placeholder(__('Subtitle'))
+                    ->rows(2)
+                    ->defaultValue('Giải pháp hóa giải thế sát, khơi thông điểm nghẽn năng lượng, kiến tạo không gian sống dung hòa sinh thái và tâm an.')
+            )
+            ->add(
+                'featured_image',
+                MediaImageField::class,
+                MediaImageFieldOption::make()
+                    ->label(__('Featured image'))
+            )
+            ->add(
+                'featured_badge',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('Featured badge'))
+                    ->placeholder(__('Featured badge'))
+                    ->defaultValue('Kỳ Thư Tháng Này')
+            )
+            ->add(
+                'featured_meta',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('Featured meta'))
+                    ->placeholder(__('Featured meta'))
+                    ->defaultValue('Đại Việt Dịch Học • 8 phút đọc • 12.400 lượt xem')
+            )
+            ->add(
+                'featured_title',
+                TextareaField::class,
+                TextareaFieldOption::make()
+                    ->label(__('Featured title'))
+                    ->placeholder(__('Featured title'))
+                    ->rows(2)
+                    ->defaultValue('Bố Trí Không Gian Sống Hài Hòa Âm Dương: Hóa Giải Góc Nhọn Xung Sát (Tiễn Xạ)')
+            )
+            ->add(
+                'featured_description',
+                TextareaField::class,
+                TextareaFieldOption::make()
+                    ->label(__('Featured description'))
+                    ->placeholder(__('Featured description'))
+                    ->rows(3)
+                    ->defaultValue('Các cạnh nhọn của tủ kệ, dầm ngang bê tông hay hướng nhọn của công trình đối diện trực xung thẳng vào vị trí giường nằm hoặc bàn trà sinh hoạt tạo nên trường khí bất ổn, khiến gia đạo dễ phát sinh nóng giận và hao tán sinh lực.')
+            )
+            ->add(
+                'featured_action_label',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('Featured action label'))
+                    ->placeholder(__('Featured action label'))
+                    ->defaultValue('Đọc giải pháp chi tiết')
+            )
+            ->add(
+                'featured_url',
+                TextField::class,
+                TextFieldOption::make()
+                    ->label(__('Featured URL'))
+                    ->placeholder(__('Featured URL'))
+                    ->defaultValue('#')
+            );
+
+        $articleDefaults = [
+            1 => [
+                'category' => 'Nhập Trạch - Khởi Lễ',
+                'title' => 'Nghi Lễ Tạ Thần Linh & An Vị Gia Tiên',
+                'description' => 'Bài văn khấn mộc mạc đúng truyền thống Việt, cùng danh mục ngũ quả, lễ hương đăng và thủ tục an vị để gia đạo khởi đầu yên ổn.',
+                'url' => '#',
+            ],
+            2 => [
+                'category' => 'Minh Đường Tụ Thủy',
+                'title' => 'Vị Trí Đặt Tiểu Cảnh Nước Chuẩn Phong Thủy',
+                'description' => 'Nguyên tắc "Sơn quản nhân đinh, Thủy quản tài lộc" giúp chọn vị trí hồ nước, dòng chảy và ánh sáng để kích hoạt sinh khí vừa đủ.',
+                'url' => '#',
+            ],
+            3 => [
+                'category' => 'Công Danh Thuận Buồm',
+                'title' => 'Tựa Sơn Nghinh Thủy: Quy Cách Bàn Làm Việc',
+                'description' => 'Tránh quay lưng ra cửa, đón nhận ánh sáng tự nhiên và chọn điểm tựa vững chãi để tinh thần ổn định, công việc hanh thông.',
+                'url' => '#',
+            ],
+            4 => [
+                'category' => 'Tĩnh Tâm An Cư',
+                'title' => 'Thanh Lọc Khí Trường: Cách Sắp Đặt Góc Thiền',
+                'description' => 'Chọn góc yên tĩnh, ánh sáng dịu và vật phẩm cân bằng để giảm nhiễu khí, giúp không gian nghỉ ngơi sâu hơn và tinh thần ổn định.',
+                'url' => '#',
+            ],
+        ];
+
+        for ($i = 1; $i <= 4; $i++) {
+            $form
+                ->add(
+                    'article_' . $i . '_image',
+                    MediaImageField::class,
+                    MediaImageFieldOption::make()
+                        ->label(__('Article :number image', ['number' => $i]))
+                )
+                ->add(
+                    'article_' . $i . '_category',
+                    TextField::class,
+                    TextFieldOption::make()
+                        ->label(__('Article :number category', ['number' => $i]))
+                        ->placeholder(__('Article :number category', ['number' => $i]))
+                        ->defaultValue($articleDefaults[$i]['category'])
+                )
+                ->add(
+                    'article_' . $i . '_title',
+                    TextareaField::class,
+                    TextareaFieldOption::make()
+                        ->label(__('Article :number title', ['number' => $i]))
+                        ->placeholder(__('Article :number title', ['number' => $i]))
+                        ->rows(2)
+                        ->defaultValue($articleDefaults[$i]['title'])
+                )
+                ->add(
+                    'article_' . $i . '_description',
+                    TextareaField::class,
+                    TextareaFieldOption::make()
+                        ->label(__('Article :number description', ['number' => $i]))
+                        ->placeholder(__('Article :number description', ['number' => $i]))
+                        ->rows(2)
+                        ->defaultValue($articleDefaults[$i]['description'])
+                )
+                ->add(
+                    'article_' . $i . '_url',
+                    TextField::class,
+                    TextFieldOption::make()
+                        ->label(__('Article :number URL', ['number' => $i]))
+                        ->placeholder(__('Article :number URL', ['number' => $i]))
+                        ->defaultValue($articleDefaults[$i]['url'])
+                );
+        }
+
+        return $form;
+    });
+
+    $productFengShuiDefaults = [
+        1 => [
+            'image' => 'products/4ba1bf26-d221-427c-819d-7c75d0ccecee.png',
+            'badge' => 'Trì Chú Khai Quang',
+            'element' => 'Mộc - Thủy Tương Hạp',
+            'price' => '3.200.000 đ',
+            'title' => 'Vòng Ngọc Cẩm Thạch Tự Nhiên',
+            'description' => 'Chế tác từ ngọc nguyên khối khai thác tự nhiên, mang năng lượng ôn hòa giúp điều hòa từ trường cơ thể, tĩnh tâm an thần.',
+            'note' => 'Kiểm định bảo ngọc',
+        ],
+        2 => [
+            'image' => 'products/7c733296-6ea1-4625-b578-8583942cf873.png',
+            'badge' => 'Chiêu Tài Tiến Bảo',
+            'element' => 'Kim Vận Hưng Khởi',
+            'price' => '6.800.000 đ',
+            'title' => 'Kim Thiềm Thừ Ngậm Tiền Vàng',
+            'description' => 'Đồng nguyên chất đúc thủ công thể cát khánh, chuyên an vị tại cung Tài Lộc hoặc quầy thu ngân để trấn giữ tài nguyên không tán.',
+            'note' => 'An vị điểm chỉ',
+        ],
+        3 => [
+            'image' => '',
+            'badge' => 'Trí Tuệ - Đỗ Đạt',
+            'element' => 'Văn Tinh Tụ Khí',
+            'price' => '2.450.000 đ',
+            'title' => 'Tháp Văn Xương Cửu Tầng Đồng',
+            'description' => 'Biểu trưng của đỗ đạt khoa bảng và công danh rộng mở. Khuyến nghị đặt tại bàn làm việc hoặc phương vị Văn Xương tinh.',
+            'note' => 'Trợ học đăng khoa',
+        ],
+    ];
+
+    add_shortcode('ProductFengShui', __('ProductFengShui'), __('Vật phẩm phong thủy - Bảo Vật Hộ Thân Trợ Mệnh'), function (Shortcode $shortcode) use ($productFengShuiDefaults) {
+        return Theme::partial('short-codes.product-feng-shui', compact('shortcode', 'productFengShuiDefaults'));
+    });
+
+    shortcode()->setAdminConfig('ProductFengShui', function (array $attributes) use ($productFengShuiDefaults) {
+        $form = ShortcodeForm::createFromArray($attributes);
+
+        $headerFields = [
+            'eyebrow' => ['Dòng giới thiệu', 'Khí Cụ Chiêu Tài • Tĩnh Tâm An Gia'],
+            'title' => ['Tiêu đề', 'Bảo Vật Hộ Thân Trợ Mệnh'],
+            'view_all_label' => ['Nhãn xem tất cả', 'Xem toàn bộ bảo khố'],
+            'view_all_url' => ['Liên kết xem tất cả', '#'],
+            'button_label' => ['Nhãn nút sản phẩm', 'Thỉnh Vật Phẩm'],
+        ];
+
+        foreach ($headerFields as $name => [$label, $default]) {
+            $form->add($name, TextField::class, TextFieldOption::make()->label($label)->defaultValue($default));
+        }
+
+        $productFields = [
+            'badge' => 'Nhãn trên ảnh',
+            'element' => 'Ngũ hành',
+            'price' => 'Giá hiển thị',
+            'title' => 'Tên sản phẩm',
+            'note' => 'Ghi chú kiểm định',
+        ];
+
+        for ($i = 1; $i <= 3; $i++) {
+            $form->add(
+                'product_' . $i . '_image',
+                MediaImageField::class,
+                MediaImageFieldOption::make()->label('Sản phẩm ' . $i . ' - Ảnh')
+            );
+
+            foreach ($productFields as $name => $label) {
+                $form->add(
+                    'product_' . $i . '_' . $name,
+                    TextField::class,
+                    TextFieldOption::make()
+                        ->label('Sản phẩm ' . $i . ' - ' . $label)
+                        ->defaultValue($productFengShuiDefaults[$i][$name])
+                );
+            }
+
+            $form
+                ->add(
+                    'product_' . $i . '_description',
+                    TextareaField::class,
+                    TextareaFieldOption::make()
+                        ->label('Sản phẩm ' . $i . ' - Mô tả')
+                        ->rows(3)
+                        ->defaultValue($productFengShuiDefaults[$i]['description'])
+                )
+                ->add(
+                    'product_' . $i . '_url',
+                    TextField::class,
+                    TextFieldOption::make()->label('Sản phẩm ' . $i . ' - Liên kết')->defaultValue('#')
+                );
+        }
+
+        return $form;
+    });
+
     if (is_plugin_active('ecommerce')) {
         add_shortcode(
             'featured-product-categories',

@@ -39,6 +39,12 @@ return [
         // breadcrumb template.
         'beforeRenderTheme' => function (Theme $theme): void {
             $version = get_cms_version();
+            $styleVersion = $version;
+            $stylePath = public_path('themes/martfury/css/style.css');
+
+            if (is_file($stylePath)) {
+                $styleVersion .= '.' . filemtime($stylePath);
+            }
 
             $theme->asset()->usePath()->add('linearicons', 'fonts/Linearicons/Linearicons/Font/demo-files/demo.css');
             $theme->asset()->usePath()->add('bootstrap-css', 'plugins/bootstrap/css/bootstrap.min.css', [], [], '5.3.7');
@@ -52,10 +58,10 @@ return [
                 ->add('jquery-bar-rating-css', 'plugins/jquery-bar-rating/themes/fontawesome-stars.css');
             $theme->asset()->usePath()->add('select2-css', 'plugins/select2/css/select2.min.css');
             $theme->asset()->usePath()->add('fontawesome', 'plugins/font-awesome/css/font-awesome.min.css');
-            $theme->asset()->usePath()->add('style', 'css/style.css', [], [], $version);
+            $theme->asset()->usePath()->add('style', 'css/style.css', [], [], $styleVersion);
 
             if (BaseHelper::isRtlEnabled()) {
-                $theme->asset()->usePath()->add('rtl', 'css/rtl.css', [], [], $version);
+                $theme->asset()->usePath()->add('rtl', 'css/rtl.css', [], [], $styleVersion);
             }
 
             $theme->asset()->container('footer')->usePath()->add('jquery', 'plugins/jquery-3.7.1.min.js');

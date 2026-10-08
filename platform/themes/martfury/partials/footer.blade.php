@@ -1,7 +1,17 @@
- <footer class="ps-footer">
+@php
+    $footerWidgets = dynamic_sidebar('footer_sidebar');
+    $bottomFooterWidgets = dynamic_sidebar('bottom_footer_sidebar');
+    $hasContactInfo = theme_option('hotline') || theme_option('address') || theme_option('email') || theme_option('social-name-1');
+    $copyright = Theme::getSiteCopyright();
+    $paymentMethods = theme_option('payment_methods', []);
+    $paymentMethods = array_filter(is_array($paymentMethods) ? $paymentMethods : (json_decode((string) $paymentMethods, true) ?: []));
+@endphp
+
+    <footer class="ps-footer ps-footer--feng-shui">
         <div class="ps-container">
+            @if ($hasContactInfo || trim($footerWidgets))
             <div class="ps-footer__widgets">
-                @if (theme_option('hotline') || theme_option('address') || theme_option('email') || theme_option('social-name-1'))
+                @if ($hasContactInfo)
                     <aside class="widget widget_footer widget_contact-us">
                         <h4 class="widget-title">{{ __('Contact us') }}</h4>
                         <div class="widget_content">
@@ -9,21 +19,29 @@
                                 <p>{{ __('Call us 24/7') }}</p>
                                 <h3>{{ theme_option('hotline') }}</h3>
                             @endif
-                            <p>{{ theme_option('address') }} <br><a href="mailto:{{ theme_option('email') }}">{{ theme_option('email') }}</a></p>
+                            @if (theme_option('address'))
+                                <p>{{ theme_option('address') }}</p>
+                            @endif
+                            @if (theme_option('email'))
+                                <p><a href="mailto:{{ theme_option('email') }}">{{ theme_option('email') }}</a></p>
+                            @endif
                             {!! Theme::partial('social-links') !!}
                         </div>
                     </aside>
                 @endif
-                {!! dynamic_sidebar('footer_sidebar') !!}
+                {!! $footerWidgets !!}
             </div>
-            @if (Widget::group('bottom_footer_sidebar')->getWidgets())
+            @endif
+            @if (trim($bottomFooterWidgets))
                 <div class="ps-footer__links" id="footer-links">
-                    {!! dynamic_sidebar('bottom_footer_sidebar') !!}
+                    {!! $bottomFooterWidgets !!}
                 </div>
             @endif
+            @if ($copyright || $paymentMethods)
             <div class="ps-footer__copyright">
-                <p class="site-copyright">{!! Theme::getSiteCopyright() !!}</p>
-                @php $paymentMethods = array_filter(json_decode(theme_option('payment_methods', []), true)); @endphp
+                @if ($copyright)
+                    <p class="site-copyright">{!! $copyright !!}</p>
+                @endif
                 @if ($paymentMethods)
                     <div class="footer-payments">
                         <span class="payment-method-title">{{ __('We Using Safe Payment For') }}:</span>
@@ -45,6 +63,7 @@
                     </div>
                 @endif
             </div>
+            @endif
         </div>
     </footer>
 
