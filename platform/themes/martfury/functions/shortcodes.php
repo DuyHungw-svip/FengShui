@@ -133,298 +133,323 @@ app()->booted(function (): void {
         return $form;
     });
 
+    shortcode()->ignoreCaches(['BlogFengShui', 'BlogFengShui2']);
+
+    $postChoices = function (): array {
+        if (! is_plugin_active('blog')) {
+            return ['' => 'Tự động lấy bài mới nhất'];
+        }
+
+        return ['' => 'Tự động lấy bài mới nhất']
+            + \Botble\Blog\Models\Post::query()->wherePublished()
+                ->orderByDesc('created_at')->orderByDesc('id')->pluck('name', 'id')->all();
+    };
+
     add_shortcode('BlogFengShui', __('BlogFengShui'), __('Blog Feng Shui card section'), function (Shortcode $shortcode) {
-        return Theme::partial('short-codes.blog-feng-shui', compact('shortcode'));
+        $slots = [];
+        for ($i = 1; $i <= 4; $i++) {
+            $slots[$i] = $shortcode->{'card_' . $i . '_post_id'};
+        }
+        $posts = theme_get_feng_shui_posts($slots);
+
+        return $posts->isEmpty() ? '' : Theme::partial('short-codes.blog-feng-shui', compact('shortcode', 'posts'));
     });
 
-    shortcode()->setAdminConfig('BlogFengShui', function (array $attributes) {
+    shortcode()->setAdminConfig('BlogFengShui', function (array $attributes) use ($postChoices) {
         $form = ShortcodeForm::createFromArray($attributes)
             ->withLazyLoading()
-            ->add(
-                'eyebrow',
-                TextField::class,
-                TextFieldOption::make()
-                    ->label(__('Eyebrow'))
-                    ->placeholder(__('Eyebrow'))
-                    ->defaultValue('Thực Chứng Học Thuật')
-            )
-            ->add(
-                'title',
-                TextField::class,
-                TextFieldOption::make()
-                    ->label(__('Title'))
-                    ->placeholder(__('Title'))
-                    ->defaultValue('Tứ Pháp Bí Truyền Ứng Dụng')
-            );
+            ->add('eyebrow', TextField::class, TextFieldOption::make()
+                ->label(__('Eyebrow'))->defaultValue('Thực Chứng Học Thuật'))
+            ->add('title', TextField::class, TextFieldOption::make()
+                ->label(__('Title'))->defaultValue('Tứ Pháp Bí Truyền Ứng Dụng'));
 
-        $cardDefaults = [
-            1 => [
-                'label' => 'Hạp Thể Tương Sinh',
-                'title' => 'Mệnh & Ngũ Hành',
-                'description' => 'Phân định màu sắc tương hợp, chất liệu bổ trợ, xác định hướng Cát - Hung chuẩn xác theo Cung phi chính tông.',
-                'action_label' => 'Khám phá ngũ hành',
-                'url' => '#',
-                'icon' => 'ti ti-sparkles',
-            ],
-            2 => [
-                'kicker' => '12 Cung Chức Vị',
-                'label' => 'Đẩu Số Mệnh Bàn',
-                'title' => 'Tử Vi Bát Tự',
-                'description' => 'An sao lập bàn 12 cung chức vị: Mệnh, Phu, Phúc, Điền, Quan, Nô... Giải mã đại hạn 10 năm và lưu niên cát triệu.',
-                'action_label' => 'Lập bản bát tự',
-                'url' => '#',
-                'icon' => 'ti ti-book',
-            ],
-            3 => [
-                'kicker' => 'Hoàng Đạo Cát Nhật',
-                'label' => 'Lịch Trực Khai Hoa',
-                'title' => 'Ngày Tốt Vạn Sự',
-                'description' => 'Chọn giờ Hoàng đạo, ngày Trực Kiến - Trừ - Mãn cho hỷ sự, động thổ, xuất hành và lễ nghi khánh thành hưng nghiệp.',
-                'action_label' => 'Tra ngày cát lợi',
-                'url' => '#',
-                'icon' => 'ti ti-calendar-check',
-            ],
-            4 => [
-                'label' => 'Bát Trạch Trực Nghiệm',
-                'title' => 'Bát Trạch Nhà Ở',
-                'description' => 'Bố trí Minh đường, tọa hướng Môn - Táo - Thờ, hóa giải loan đầu hình sát bên ngoài và tụ dưỡng nội khí trường.',
-                'action_label' => 'Thẩm định dương trạch',
-                'url' => '#',
-                'icon' => 'ti ti-compass',
-            ],
-        ];
-
+        $choices = $postChoices();
         for ($i = 1; $i <= 4; $i++) {
             $form
-                ->add(
-                    'card_' . $i . '_image',
-                    MediaImageField::class,
-                    MediaImageFieldOption::make()
-                        ->label(__('Card :number image', ['number' => $i]))
-                )
-                ->add(
-                    'card_' . $i . '_kicker',
-                    TextField::class,
-                    TextFieldOption::make()
-                        ->label(__('Card :number kicker', ['number' => $i]))
-                        ->placeholder(__('Card :number kicker', ['number' => $i]))
-                        ->defaultValue($cardDefaults[$i]['kicker'] ?? '')
-                )
-                ->add(
-                    'card_' . $i . '_label',
-                    TextField::class,
-                    TextFieldOption::make()
-                        ->label(__('Card :number label', ['number' => $i]))
-                        ->placeholder(__('Card :number label', ['number' => $i]))
-                        ->defaultValue($cardDefaults[$i]['label'])
-                )
-                ->add(
-                    'card_' . $i . '_title',
-                    TextField::class,
-                    TextFieldOption::make()
-                        ->label(__('Card :number title', ['number' => $i]))
-                        ->placeholder(__('Card :number title', ['number' => $i]))
-                        ->defaultValue($cardDefaults[$i]['title'])
-                )
-                ->add(
-                    'card_' . $i . '_description',
-                    TextareaField::class,
-                    TextareaFieldOption::make()
-                        ->label(__('Card :number description', ['number' => $i]))
-                        ->placeholder(__('Card :number description', ['number' => $i]))
-                        ->rows(3)
-                        ->defaultValue($cardDefaults[$i]['description'])
-                )
-                ->add(
-                    'card_' . $i . '_action_label',
-                    TextField::class,
-                    TextFieldOption::make()
-                        ->label(__('Card :number action label', ['number' => $i]))
-                        ->placeholder(__('Card :number action label', ['number' => $i]))
-                        ->defaultValue($cardDefaults[$i]['action_label'])
-                )
-                ->add(
-                    'card_' . $i . '_url',
-                    TextField::class,
-                    TextFieldOption::make()
-                        ->label(__('Card :number URL', ['number' => $i]))
-                        ->placeholder(__('Card :number URL', ['number' => $i]))
-                        ->defaultValue($cardDefaults[$i]['url'])
-                )
-                ->add(
-                    'card_' . $i . '_icon',
-                    CoreIconField::class,
-                    CoreIconFieldOption::make()
-                        ->label(__('Card :number icon', ['number' => $i]))
-                        ->defaultValue($cardDefaults[$i]['icon'])
-                );
+                ->add('card_' . $i . '_post_id', SelectField::class, SelectFieldOption::make()
+                    ->label('Bài viết ở ô ' . $i)
+                    ->choices($choices)->searchable()
+                    ->helperText('Chỉ hiển thị bài đã xuất bản. Chỉnh tiêu đề, ảnh và mô tả tại Blog → Bài viết.'))
+                ->add('card_' . $i . '_kicker', TextField::class, TextFieldOption::make()
+                    ->label(__('Card :number kicker', ['number' => $i])))
+                ->add('card_' . $i . '_action_label', TextField::class, TextFieldOption::make()
+                    ->label(__('Card :number action label', ['number' => $i]))->defaultValue('Đọc bài viết'))
+                ->add('card_' . $i . '_icon', CoreIconField::class, CoreIconFieldOption::make()
+                    ->label(__('Card :number icon', ['number' => $i]))->defaultValue('ti ti-book'));
         }
 
         return $form;
     });
 
     add_shortcode('BlogFengShui2', __('BlogFengShui2'), __('Blog Feng Shui featured article section'), function (Shortcode $shortcode) {
-        return Theme::partial('short-codes.blog-feng-shui-2', compact('shortcode'));
+        $slots = ['featured' => $shortcode->featured_post_id];
+        for ($i = 1; $i <= 4; $i++) {
+            $slots[$i] = $shortcode->{'article_' . $i . '_post_id'};
+        }
+        $posts = theme_get_feng_shui_posts($slots);
+        $featured = $posts->pull('featured');
+
+        if (! $featured) {
+            $featured = $posts->shift();
+        }
+
+        return $featured ? Theme::partial('short-codes.blog-feng-shui-2', [
+            'shortcode' => $shortcode,
+            'featured' => $featured,
+            'articles' => $posts,
+        ]) : '';
     });
 
-    shortcode()->setAdminConfig('BlogFengShui2', function (array $attributes) {
+    shortcode()->setAdminConfig('BlogFengShui2', function (array $attributes) use ($postChoices) {
+        $choices = $postChoices();
         $form = ShortcodeForm::createFromArray($attributes)
             ->withLazyLoading()
-            ->add(
-                'eyebrow',
-                TextField::class,
-                TextFieldOption::make()
-                    ->label(__('Eyebrow'))
-                    ->placeholder(__('Eyebrow'))
-                    ->defaultValue('Thực Địa Ứng Dụng')
-            )
-            ->add(
-                'title',
-                TextField::class,
-                TextFieldOption::make()
-                    ->label(__('Title'))
-                    ->placeholder(__('Title'))
-                    ->defaultValue('Cẩm Nang Dịch Lý Nhà Ở Đương Đại')
-            )
-            ->add(
-                'subtitle',
-                TextareaField::class,
-                TextareaFieldOption::make()
-                    ->label(__('Subtitle'))
-                    ->placeholder(__('Subtitle'))
-                    ->rows(2)
-                    ->defaultValue('Giải pháp hóa giải thế sát, khơi thông điểm nghẽn năng lượng, kiến tạo không gian sống dung hòa sinh thái và tâm an.')
-            )
-            ->add(
-                'featured_image',
-                MediaImageField::class,
-                MediaImageFieldOption::make()
-                    ->label(__('Featured image'))
-            )
-            ->add(
-                'featured_badge',
-                TextField::class,
-                TextFieldOption::make()
-                    ->label(__('Featured badge'))
-                    ->placeholder(__('Featured badge'))
-                    ->defaultValue('Kỳ Thư Tháng Này')
-            )
-            ->add(
-                'featured_meta',
-                TextField::class,
-                TextFieldOption::make()
-                    ->label(__('Featured meta'))
-                    ->placeholder(__('Featured meta'))
-                    ->defaultValue('Đại Việt Dịch Học • 8 phút đọc • 12.400 lượt xem')
-            )
-            ->add(
-                'featured_title',
-                TextareaField::class,
-                TextareaFieldOption::make()
-                    ->label(__('Featured title'))
-                    ->placeholder(__('Featured title'))
-                    ->rows(2)
-                    ->defaultValue('Bố Trí Không Gian Sống Hài Hòa Âm Dương: Hóa Giải Góc Nhọn Xung Sát (Tiễn Xạ)')
-            )
-            ->add(
-                'featured_description',
-                TextareaField::class,
-                TextareaFieldOption::make()
-                    ->label(__('Featured description'))
-                    ->placeholder(__('Featured description'))
-                    ->rows(3)
-                    ->defaultValue('Các cạnh nhọn của tủ kệ, dầm ngang bê tông hay hướng nhọn của công trình đối diện trực xung thẳng vào vị trí giường nằm hoặc bàn trà sinh hoạt tạo nên trường khí bất ổn, khiến gia đạo dễ phát sinh nóng giận và hao tán sinh lực.')
-            )
-            ->add(
-                'featured_action_label',
-                TextField::class,
-                TextFieldOption::make()
-                    ->label(__('Featured action label'))
-                    ->placeholder(__('Featured action label'))
-                    ->defaultValue('Đọc giải pháp chi tiết')
-            )
-            ->add(
-                'featured_url',
-                TextField::class,
-                TextFieldOption::make()
-                    ->label(__('Featured URL'))
-                    ->placeholder(__('Featured URL'))
-                    ->defaultValue('#')
-            );
-
-        $articleDefaults = [
-            1 => [
-                'category' => 'Nhập Trạch - Khởi Lễ',
-                'title' => 'Nghi Lễ Tạ Thần Linh & An Vị Gia Tiên',
-                'description' => 'Bài văn khấn mộc mạc đúng truyền thống Việt, cùng danh mục ngũ quả, lễ hương đăng và thủ tục an vị để gia đạo khởi đầu yên ổn.',
-                'url' => '#',
-            ],
-            2 => [
-                'category' => 'Minh Đường Tụ Thủy',
-                'title' => 'Vị Trí Đặt Tiểu Cảnh Nước Chuẩn Phong Thủy',
-                'description' => 'Nguyên tắc "Sơn quản nhân đinh, Thủy quản tài lộc" giúp chọn vị trí hồ nước, dòng chảy và ánh sáng để kích hoạt sinh khí vừa đủ.',
-                'url' => '#',
-            ],
-            3 => [
-                'category' => 'Công Danh Thuận Buồm',
-                'title' => 'Tựa Sơn Nghinh Thủy: Quy Cách Bàn Làm Việc',
-                'description' => 'Tránh quay lưng ra cửa, đón nhận ánh sáng tự nhiên và chọn điểm tựa vững chãi để tinh thần ổn định, công việc hanh thông.',
-                'url' => '#',
-            ],
-            4 => [
-                'category' => 'Tĩnh Tâm An Cư',
-                'title' => 'Thanh Lọc Khí Trường: Cách Sắp Đặt Góc Thiền',
-                'description' => 'Chọn góc yên tĩnh, ánh sáng dịu và vật phẩm cân bằng để giảm nhiễu khí, giúp không gian nghỉ ngơi sâu hơn và tinh thần ổn định.',
-                'url' => '#',
-            ],
-        ];
+            ->add('eyebrow', TextField::class, TextFieldOption::make()
+                ->label(__('Eyebrow'))->defaultValue('Thực Địa Ứng Dụng'))
+            ->add('title', TextField::class, TextFieldOption::make()
+                ->label(__('Title'))->defaultValue('Cẩm Nang Dịch Lý Nhà Ở Đương Đại'))
+            ->add('subtitle', TextareaField::class, TextareaFieldOption::make()
+                ->label(__('Subtitle'))->rows(2)
+                ->defaultValue('Giải pháp hóa giải thế sát, khơi thông điểm nghẽn năng lượng, kiến tạo không gian sống dung hòa sinh thái và tâm an.'))
+            ->add('featured_post_id', SelectField::class, SelectFieldOption::make()
+                ->label('Bài viết nổi bật')->choices($choices)->searchable()
+                ->helperText('Chỉ hiển thị bài đã xuất bản. Chỉnh tiêu đề, ảnh và mô tả tại Blog → Bài viết.'))
+            ->add('featured_badge', TextField::class, TextFieldOption::make()
+                ->label(__('Featured badge'))->defaultValue('Kỳ Thư Tháng Này'))
+            ->add('featured_action_label', TextField::class, TextFieldOption::make()
+                ->label(__('Featured action label'))->defaultValue('Đọc giải pháp chi tiết'));
 
         for ($i = 1; $i <= 4; $i++) {
-            $form
-                ->add(
-                    'article_' . $i . '_image',
-                    MediaImageField::class,
-                    MediaImageFieldOption::make()
-                        ->label(__('Article :number image', ['number' => $i]))
-                )
-                ->add(
-                    'article_' . $i . '_category',
-                    TextField::class,
-                    TextFieldOption::make()
-                        ->label(__('Article :number category', ['number' => $i]))
-                        ->placeholder(__('Article :number category', ['number' => $i]))
-                        ->defaultValue($articleDefaults[$i]['category'])
-                )
-                ->add(
-                    'article_' . $i . '_title',
-                    TextareaField::class,
-                    TextareaFieldOption::make()
-                        ->label(__('Article :number title', ['number' => $i]))
-                        ->placeholder(__('Article :number title', ['number' => $i]))
-                        ->rows(2)
-                        ->defaultValue($articleDefaults[$i]['title'])
-                )
-                ->add(
-                    'article_' . $i . '_description',
-                    TextareaField::class,
-                    TextareaFieldOption::make()
-                        ->label(__('Article :number description', ['number' => $i]))
-                        ->placeholder(__('Article :number description', ['number' => $i]))
-                        ->rows(2)
-                        ->defaultValue($articleDefaults[$i]['description'])
-                )
-                ->add(
-                    'article_' . $i . '_url',
-                    TextField::class,
-                    TextFieldOption::make()
-                        ->label(__('Article :number URL', ['number' => $i]))
-                        ->placeholder(__('Article :number URL', ['number' => $i]))
-                        ->defaultValue($articleDefaults[$i]['url'])
-                );
+            $form->add('article_' . $i . '_post_id', SelectField::class, SelectFieldOption::make()
+                ->label('Bài viết nhỏ ' . $i)->choices($choices)->searchable());
         }
 
         return $form;
     });
+
+    $blogFengShui3Fields = [
+        'eyebrow' => ['Dòng giới thiệu', 'Học Thuật Cổ Dịch • Biện Chứng Thực Địa • Phi Mê Tín'],
+        'title' => ['Tiêu đề', 'Hành Trình Gìn Giữ Cổ Học & Kiến Tạo Bình An Gia Đạo'],
+        'description' => ['Nội dung giới thiệu', 'Gìn giữ tinh hoa Kinh Dịch, Bát Trạch và tri thức phong thủy truyền thống, chúng tôi đồng hành cùng gia chủ trong việc tìm hiểu không gian sống và vun đắp bình an gia đạo. Mỗi cuộc tham vấn bắt đầu từ sự lắng nghe, đối chiếu thông tin và khảo sát thực tế, hướng đến những giải pháp phù hợp với hoàn cảnh của từng gia đình.'],
+        'quote_title' => ['Tiêu đề lời dẫn', 'Đạo Pháp Tự Nhiên - Đức Năng Thắng Số'],
+        'quote_description' => ['Nội dung lời dẫn', 'Địa lý thuận thiên ứng nhân; nhà ở an định tạo dưỡng tâm tính. Lấy sự cân bằng, hiểu biết và hành động thiết thực làm nền tảng cho đời sống an hòa.'],
+        'primary_label' => ['Nút chính - Nội dung', 'Đặt Lịch Tham Vấn 1-1'],
+        'primary_url' => ['Nút chính - Liên kết', '/contact'],
+        'secondary_label' => ['Nút phụ - Nội dung', 'Tìm Hiểu Tri Thức Phong Thủy'],
+        'secondary_url' => ['Nút phụ - Liên kết', '/blog'],
+        'image' => ['Ảnh giới thiệu', ''],
+        'image_alt' => ['Mô tả ảnh', 'Tư liệu Dịch lý và địa lý cổ'],
+        'image_eyebrow' => ['Dòng nhỏ trên ảnh', 'Tư Liệu Dịch Lý & Địa Lý Cổ'],
+        'image_caption' => ['Chú thích trên ảnh', 'Gìn giữ tri thức, ứng dụng vào đời sống'],
+        'badge_title' => ['Nhãn nổi - Tiêu đề', 'Tư Vấn Có Trách Nhiệm'],
+        'badge_description' => ['Nhãn nổi - Nội dung', 'Lắng nghe và đồng hành cùng gia chủ'],
+    ];
+    $blogFengShui3Stats = [
+        1 => ['label' => 'Nền Tảng', 'value' => 'Kinh Dịch', 'description' => 'Tìm hiểu tri thức cổ học và giá trị truyền thống trong đời sống đương đại.', 'icon' => 'ti ti-writing'],
+        2 => ['label' => 'Tham Vấn', 'value' => 'Gia Trạch', 'description' => 'Lắng nghe nhu cầu của gia chủ, xem xét thông tin và bối cảnh từng gia đình.', 'icon' => 'ti ti-folder'],
+        3 => ['label' => 'Phương Pháp', 'value' => 'Thực Địa', 'description' => 'Kết hợp nghiên cứu tư liệu với quan sát, khảo sát không gian thực tế.', 'icon' => 'ti ti-school'],
+        4 => ['label' => 'Đồng Hành', 'value' => 'Tận Tâm', 'description' => 'Trao đổi rõ ràng, tôn trọng lựa chọn và hoàn cảnh riêng của mỗi gia chủ.', 'icon' => 'ti ti-shield-check'],
+    ];
+
+    add_shortcode('BlogFengShui3', __('BlogFengShui3'), 'Giới thiệu cổ học, tham vấn và bốn ô thông tin', function (Shortcode $shortcode) use ($blogFengShui3Fields, $blogFengShui3Stats) {
+        $content = [];
+        foreach ($blogFengShui3Fields as $field => [$label, $default]) {
+            $content[$field] = $shortcode->{$field} ?? $default;
+        }
+        $stats = [];
+        foreach ($blogFengShui3Stats as $number => $defaults) {
+            foreach ($defaults as $field => $default) {
+                $stats[$number][$field] = $shortcode->{'stat_' . $number . '_' . $field} ?? $default;
+            }
+        }
+
+        return Theme::partial('short-codes.blog-feng-shui-3', compact('content', 'stats'));
+    });
+
+    shortcode()->setAdminConfig('BlogFengShui3', function (array $attributes) use ($blogFengShui3Fields, $blogFengShui3Stats) {
+        $form = ShortcodeForm::createFromArray($attributes);
+
+        foreach ($blogFengShui3Fields as $field => [$label, $default]) {
+            if ($field === 'image') {
+                $form->add($field, MediaImageField::class, MediaImageFieldOption::make()->label($label));
+            } elseif (in_array($field, ['description', 'quote_description'], true)) {
+                $form->add($field, TextareaField::class, TextareaFieldOption::make()
+                    ->label($label)->rows(3)->defaultValue($default));
+            } else {
+                $form->add($field, TextField::class, TextFieldOption::make()->label($label)->defaultValue($default));
+            }
+        }
+
+        foreach ($blogFengShui3Stats as $number => $defaults) {
+            $prefix = 'stat_' . $number . '_';
+            $form
+                ->add($prefix . 'icon', CoreIconField::class, CoreIconFieldOption::make()
+                    ->label('Ô ' . $number . ' - Biểu tượng')->defaultValue($defaults['icon']))
+                ->add($prefix . 'label', TextField::class, TextFieldOption::make()
+                    ->label('Ô ' . $number . ' - Nhãn')->defaultValue($defaults['label']))
+                ->add($prefix . 'value', TextField::class, TextFieldOption::make()
+                    ->label('Ô ' . $number . ' - Thông tin / số liệu')->defaultValue($defaults['value'])
+                    ->helperText('Nhập số liệu thực tế của bạn; có thể trình bày 25+ Năm, 18.000+, 100% hoặc 0 Đồng như mẫu.'))
+                ->add($prefix . 'description', TextareaField::class, TextareaFieldOption::make()
+                    ->label('Ô ' . $number . ' - Mô tả')->rows(2)->defaultValue($defaults['description']));
+        }
+
+        return $form;
+    });
+    shortcode()->ignoreLazyLoading(['BlogFengShui3']);
+    shortcode()->ignoreCaches(['BlogFengShui3']);
+
+    $blogFengShui4Fields = [
+        'eyebrow' => ['Dòng giới thiệu', 'Không Gian Tiếp Đón'],
+        'title' => ['Tiêu đề', 'Trà Thiền Đàm Đạo - Lắng Nghe & Thấu Cảm'],
+        'description' => ['Nội dung giới thiệu', 'Một không gian tĩnh tại để cùng nhau trao đổi, lắng nghe và tìm hiểu tri thức phong thủy. Mỗi cuộc trò chuyện bắt đầu từ sự thấu hiểu hoàn cảnh của gia chủ, trong không gian trà thanh tịnh, gần gũi với thiên nhiên và những giá trị cổ học.'],
+        'contact_label' => ['Nội dung liên kết liên hệ', 'Liên hệ đặt lịch ghé thăm'],
+        'contact_url' => ['Liên kết liên hệ', '/contact'],
+    ];
+    $blogFengShui4Images = [
+        1 => ['image' => '', 'caption' => 'Không Gian Đàm Đạo Trà Thiền', 'alt' => 'Không gian trà và sân vườn', 'fallback' => 'img/home-feng-shui-hero.png'],
+        2 => ['image' => '', 'caption' => 'Trà Đạo Tĩnh Tâm', 'alt' => 'Không gian trà đạo tĩnh tâm', 'fallback' => 'img/home-feng-shui-hero.png'],
+        3 => ['image' => '', 'caption' => 'Tư Liệu La Bàn Cổ', 'alt' => 'La bàn và tư liệu cổ học', 'fallback' => 'img/blog-feng-shui-compass.png'],
+    ];
+    $blogFengShui4Features = [
+        1 => ['title' => 'Tĩnh Tâm Trước Luận Việc', 'description' => 'Dành thời gian lắng lại, chia sẻ những điều đang quan tâm để cuộc trao đổi được cởi mở và sáng rõ.', 'icon' => 'ti ti-plant-2'],
+        2 => ['title' => 'Tư Liệu Cổ Học', 'description' => 'Cùng tìm hiểu sách cổ, la bàn và các tư liệu địa lý, đối chiếu tri thức truyền thống với thực tế.', 'icon' => 'ti ti-book'],
+        3 => ['title' => 'Tham Vấn Trực Tiếp', 'description' => 'Trao đổi riêng về hoàn cảnh và nguyện vọng của gia chủ, tôn trọng sự riêng tư trong mỗi cuộc tham vấn.', 'icon' => 'ti ti-user'],
+    ];
+
+    add_shortcode('BlogFengShui4', __('BlogFengShui4'), 'Không gian trà thiền, giới thiệu và tham vấn', function (Shortcode $shortcode) use ($blogFengShui4Fields, $blogFengShui4Images, $blogFengShui4Features) {
+        $content = [];
+        foreach ($blogFengShui4Fields as $field => [$label, $default]) {
+            $content[$field] = $shortcode->{$field} ?? $default;
+        }
+        $pictures = $blogFengShui4Images;
+        foreach ($pictures as $number => &$picture) {
+            foreach (['image', 'caption', 'alt'] as $field) {
+                $picture[$field] = $shortcode->{'picture_' . $number . '_' . $field} ?? $picture[$field];
+            }
+        }
+        unset($picture);
+
+        $features = [];
+        foreach ($blogFengShui4Features as $number => $defaults) {
+            $feature = [];
+            foreach ($defaults as $field => $default) {
+                $feature[$field] = $shortcode->{'feature_' . $number . '_' . $field} ?? $default;
+            }
+            if ($feature['title'] || $feature['description']) {
+                $features[] = $feature;
+            }
+        }
+
+        return Theme::partial('short-codes.blog-feng-shui-4', compact('content', 'pictures', 'features'));
+    });
+
+    shortcode()->setAdminConfig('BlogFengShui4', function (array $attributes) use ($blogFengShui4Fields, $blogFengShui4Images, $blogFengShui4Features) {
+        $form = ShortcodeForm::createFromArray($attributes);
+
+        foreach ($blogFengShui4Fields as $field => [$label, $default]) {
+            if ($field === 'description') {
+                $form->add($field, TextareaField::class, TextareaFieldOption::make()
+                    ->label($label)->rows(3)->defaultValue($default));
+            } else {
+                $form->add($field, TextField::class, TextFieldOption::make()->label($label)->defaultValue($default));
+            }
+        }
+
+        foreach ($blogFengShui4Images as $number => $defaults) {
+            $prefix = 'picture_' . $number . '_';
+            $form
+                ->add($prefix . 'image', MediaImageField::class, MediaImageFieldOption::make()
+                    ->label('Ảnh ' . $number . ($number === 1 ? ' - Ảnh lớn bên trái' : ' - Ảnh nhỏ')))
+                ->add($prefix . 'caption', TextField::class, TextFieldOption::make()
+                    ->label('Ảnh ' . $number . ' - Chú thích')->defaultValue($defaults['caption']))
+                ->add($prefix . 'alt', TextField::class, TextFieldOption::make()
+                    ->label('Ảnh ' . $number . ' - Mô tả ảnh')->defaultValue($defaults['alt']));
+        }
+
+        foreach ($blogFengShui4Features as $number => $defaults) {
+            $prefix = 'feature_' . $number . '_';
+            $form
+                ->add($prefix . 'icon', CoreIconField::class, CoreIconFieldOption::make()
+                    ->label('Điểm nổi bật ' . $number . ' - Biểu tượng')->defaultValue($defaults['icon']))
+                ->add($prefix . 'title', TextField::class, TextFieldOption::make()
+                    ->label('Điểm nổi bật ' . $number . ' - Tiêu đề')->defaultValue($defaults['title']))
+                ->add($prefix . 'description', TextareaField::class, TextareaFieldOption::make()
+                    ->label('Điểm nổi bật ' . $number . ' - Mô tả')->rows(2)->defaultValue($defaults['description']));
+        }
+
+        return $form;
+    });
+    shortcode()->ignoreLazyLoading(['BlogFengShui4']);
+    shortcode()->ignoreCaches(['BlogFengShui4']);
+
+    $cardFengShuiHeader = [
+        'eyebrow' => ['Dòng giới thiệu', 'Tôn Chỉ Phụng Sự'],
+        'title' => ['Tiêu đề', 'Ba Trụ Cột Vững Bền Của Phong Thủy Chân Chính'],
+        'subtitle' => ['Mô tả', 'Chúng tôi định nghĩa phong thủy là sự tương tác hài hòa giữa Thiên Thời (nhịp điệu vũ trụ), Địa Lợi (hình thế môi trường đất đai) và Nhân Hòa (tâm tính và đạo đức gia chủ).'],
+    ];
+    $cardFengShuiDefaults = [
+        1 => [
+            'icon' => 'ti ti-compass',
+            'title' => 'Minh Bạch Học Thuật',
+            'description' => 'Tri thức phong thủy được trình bày rõ ràng, đối chiếu với tư liệu cổ học và hoàn cảnh thực tế của gia chủ. Mỗi nhận định cần có căn cứ và được trao đổi minh bạch, không phán đoán tùy tiện hay dùng sự lo lắng để thúc đẩy những quyết định thiếu cân nhắc.',
+            'note' => 'Biện chứng & Tri thức truyền thống',
+        ],
+        2 => [
+            'icon' => 'ti ti-bulb',
+            'title' => 'Dĩ Tâm Vi Bản',
+            'description' => '"Đức năng thắng số, tâm an vạn sự hưng". Phong thủy hướng đến sự cân bằng giữa ánh sáng, luồng gió và không gian sống. Giá trị bền vững bắt đầu từ tâm thái an hòa, lối sống thiện lành và sự thấu hiểu giữa những người cùng chung mái nhà.',
+            'note' => 'Dưỡng tâm • Tích đức • Tự nhiên',
+        ],
+        3 => [
+            'icon' => 'ti ti-lock',
+            'title' => 'Bảo Mật Thông Tin',
+            'description' => 'Thông tin ngày sinh, bản vẽ mặt bằng và những chia sẻ về gia đình được tiếp nhận để chuẩn bị nội dung tham vấn phù hợp. Sự riêng tư của gia chủ cần được tôn trọng trong quá trình trao đổi, với phạm vi sử dụng thông tin được giải thích rõ ràng.',
+            'note' => 'Tôn trọng quyền riêng tư',
+        ],
+    ];
+
+    add_shortcode('CardFengShui', __('CardFengShui'), 'Ba trụ cột và tôn chỉ phụng sự phong thủy', function (Shortcode $shortcode) use ($cardFengShuiHeader, $cardFengShuiDefaults) {
+        $heading = [];
+        foreach ($cardFengShuiHeader as $field => [$label, $default]) {
+            $heading[$field] = $shortcode->{$field} ?? $default;
+        }
+        $cards = [];
+        foreach ($cardFengShuiDefaults as $number => $defaults) {
+            foreach ($defaults as $field => $default) {
+                $cards[$number][$field] = $shortcode->{'card_' . $number . '_' . $field} ?? $default;
+            }
+        }
+
+        return Theme::partial('short-codes.card-feng-shui', compact('heading', 'cards'));
+    });
+
+    shortcode()->setAdminConfig('CardFengShui', function (array $attributes) use ($cardFengShuiHeader, $cardFengShuiDefaults) {
+        $form = ShortcodeForm::createFromArray($attributes);
+        foreach ($cardFengShuiHeader as $field => [$label, $default]) {
+            if ($field === 'subtitle') {
+                $form->add($field, TextareaField::class, TextareaFieldOption::make()->label($label)->rows(2)->defaultValue($default));
+            } else {
+                $form->add($field, TextField::class, TextFieldOption::make()->label($label)->defaultValue($default));
+            }
+        }
+        foreach ($cardFengShuiDefaults as $number => $defaults) {
+            $prefix = 'card_' . $number . '_';
+            $form
+                ->add($prefix . 'icon', CoreIconField::class, CoreIconFieldOption::make()
+                    ->label('Thẻ ' . $number . ' - Biểu tượng')->defaultValue($defaults['icon']))
+                ->add($prefix . 'title', TextField::class, TextFieldOption::make()
+                    ->label('Thẻ ' . $number . ' - Tiêu đề')->defaultValue($defaults['title']))
+                ->add($prefix . 'description', TextareaField::class, TextareaFieldOption::make()
+                    ->label('Thẻ ' . $number . ' - Mô tả')->rows(4)->defaultValue($defaults['description']))
+                ->add($prefix . 'note', TextField::class, TextFieldOption::make()
+                    ->label('Thẻ ' . $number . ' - Ghi chú cuối thẻ')->defaultValue($defaults['note']));
+        }
+
+        return $form;
+    });
+    shortcode()->ignoreLazyLoading(['CardFengShui']);
+    shortcode()->ignoreCaches(['CardFengShui']);
 
     $productFengShuiDefaults = [
         1 => [
@@ -1045,6 +1070,13 @@ app()->booted(function (): void {
     });
 
     if (is_plugin_active('contact') && defined('CONTACT_FORM_TEMPLATE_VIEW')) {
+        \Botble\Contact\Forms\ShortcodeContactAdminConfigForm::beforeRendering(function ($form): void {
+            $form->add('style', SelectField::class, SelectFieldOption::make()
+                ->label('Giao diện liên hệ')
+                ->choices(['default' => 'Liên hệ mặc định', 'consultation' => 'Đặt lịch tư vấn phong thủy'])
+                ->defaultValue('default'));
+        });
+
         add_filter(CONTACT_FORM_TEMPLATE_VIEW, function () {
             return Theme::getThemeNamespace() . '::partials.short-codes.contact-form';
         }, 120);

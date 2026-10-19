@@ -6,6 +6,12 @@ use Theme\Martfury\Http\Controllers\MartfuryController;
 
 Theme::registerRoutes(function (): void {
     Route::group(['controller' => MartfuryController::class], function (): void {
+        if (is_plugin_active('contact')) {
+            Route::post('contact/consultation', 'sendFengShuiConsultation')
+                ->middleware('throttle:20,1')
+                ->name('public.contact.consultation');
+        }
+
         Route::group(['prefix' => 'ajax', 'as' => 'public.ajax.'], function (): void {
             Route::get('products', 'ajaxGetProducts')
                 ->name('products');

@@ -18,17 +18,6 @@
                 <div class="ps-container align-items-center">
                     @if (is_plugin_active('ecommerce'))
                         <div class="header__left">
-                            <div class="menu--product-categories">
-                                <div class="menu__toggle"><i class="icon-menu"></i><span> {{ __('Shop by Department') }}</span></div>
-                                <div class="menu__content" style="display: none">
-                                    <ul class="menu--dropdown">
-                                        @php
-                                            $categoriesDropdown = Theme::partial('product-categories-dropdown', ['categories' => ProductCategoryHelper::getProductCategoriesWithUrl()]);
-                                        @endphp
-                                        {!! $categoriesDropdown ?? null !!}
-                                    </ul>
-                                </div>
-                            </div>
                             <a class="ps-logo" href="{{ BaseHelper::getHomepageUrl() }}">
                                 {!! Theme::partial('header-brand') !!}
                             </a>
@@ -59,14 +48,6 @@
                                 @if (EcommerceHelper::isWishlistEnabled())
                                     <a class="header__extra btn-wishlist" href="{{ route('public.wishlist') }}" title="{{ __('Wishlist') }}"><i class="icon-heart"></i><span><i>{{ !auth('customer')->check() ? Cart::instance('wishlist')->count() : auth('customer')->user()->wishlist()->count() }}</i></span></a>
                                 @endif
-                                @if (EcommerceHelper::isCartEnabled())
-                                    <div class="ps-cart--mini">
-                                        <a class="header__extra btn-shopping-cart" href="{{ route('public.cart') }}" title="{{ __('Shopping cart') }}"><i class="icon-bag2"></i><span><i>{{ Cart::instance('cart')->count() }}</i></span></a>
-                                        <div class="ps-cart--mobile">
-                                            {!! Theme::partial('cart') !!}
-                                        </div>
-                                    </div>
-                                @endif
                                 {!! apply_filters('after_theme_header_actions', null) !!}
                                 <div class="ps-block--user-header">
                                     <div class="ps-block__left"><i class="icon-user"></i></div>
@@ -89,16 +70,6 @@
             </div>
             <nav class="navigation">
                 <div class="ps-container">
-                    <div class="navigation__left">
-                        <div class="menu--product-categories">
-                            <div class="menu__toggle"><i class="icon-menu"></i><span> {{ __('Shop by Department') }}</span></div>
-                            <div class="menu__content" style="display: none">
-                                <ul class="menu--dropdown">
-                                    {!! $categoriesDropdown ?? null !!}
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
                     <div class="navigation__right">
                         {!! Menu::renderMenuLocation('main-menu', [
                             'view'    => 'menu',
@@ -106,27 +77,6 @@
                         ]) !!}
                         @if (is_plugin_active('ecommerce'))
                             <ul class="navigation__extra">
-                                @if (is_plugin_active('marketplace') && theme_option('show_sell_on_marketplace_link', 'yes') == 'yes')
-                                    <li class="sell-on-marketplace-link"><a href="{{ !auth('customer')->check() ? route('customer.register') : (auth('customer')->user()->is_vendor ? route('marketplace.vendor.dashboard') : route('marketplace.vendor.become-vendor')) }}">{{ theme_option('sell_on_site_text') ?: __('Sell On Martfury') }}</a></li>
-                                @endif
-                                @if (EcommerceHelper::isOrderTrackingEnabled())
-                                    <li><a href="{{ route('public.orders.tracking') }}">{{ __('Track your order') }}</a></li>
-                                @endif
-                                @php $currencies = get_all_currencies(); @endphp
-                                @if (count($currencies) > 1)
-                                    <li>
-                                        <div class="ps-dropdown">
-                                            <a href="{{ route('public.change-currency', get_application_currency()->title) }}"><span>{{ get_application_currency()->title }}</span></a>
-                                            <ul class="ps-dropdown-menu">
-                                                @foreach ($currencies as $currency)
-                                                    @if ($currency->id !== get_application_currency_id())
-                                                        <li><a href="{{ route('public.change-currency', $currency->title) }}"><span>{{ $currency->title }}</span></a></li>
-                                                    @endif
-                                                @endforeach
-                                            </ul>
-                                        </div>
-                                    </li>
-                                @endif
                                 @if (is_plugin_active('language'))
                                     {!! Theme::partial('language-switcher') !!}
                                 @endif
@@ -141,36 +91,12 @@
         @else
             {!! Theme::partial('header-mobile') !!}
         @endif
-        @if (is_plugin_active('ecommerce'))
-            <div class="ps-panel--sidebar" id="cart-mobile" style="display: none">
-                <div class="ps-panel__header">
-                    <h3>{{ __('Shopping Cart') }}</h3>
-                </div>
-                <div class="navigation__content">
-                    <div class="ps-cart--mobile">
-                        {!! Theme::partial('cart') !!}
-                    </div>
-                </div>
-            </div>
-            <div class="ps-panel--sidebar" id="navigation-mobile" style="display: none">
-                <div class="ps-panel__header">
-                    <h3>{{ __('Categories') }}</h3>
-                </div>
-                <div class="ps-panel__content">
-                    <ul class="menu--mobile">
-                        {!! $categoriesDropdown ?? null !!}
-                    </ul>
-                </div>
-            </div>
-        @endif
-
         @if (Theme::get('showBottomBarMenu', true))
             <div class="navigation--list" @if(theme_option('bottom_bar_menu_show_text', 'yes') != 'yes')data-hide-text="true"@endif style="--bottom-bar-menu-text-font-size: {{ theme_option('bottom_bar_menu_text_font_size', 14) }}px;">
                 <div class="navigation__content">
                     <a class="navigation__item ps-toggle--sidebar" href="#menu-mobile"><i class="icon-menu"></i><span> {{ __('Menu') }}</span></a>
-                    <a class="navigation__item ps-toggle--sidebar" href="#navigation-mobile"><i class="icon-list4"></i><span> {{ __('Categories') }}</span></a>
                     <a class="navigation__item ps-toggle--sidebar" href="#search-sidebar"><i class="icon-magnifier"></i><span> {{ __('Search') }}</span></a>
-                    <a class="navigation__item ps-toggle--sidebar" href="#cart-mobile"><i class="icon-bag2"></i><span> {{ __('Cart') }}</span></a></div>
+                </div>
             </div>
         @endif
 
@@ -203,27 +129,11 @@
 
                 <ul class="menu--mobile menu--mobile-extra">
                     @if (is_plugin_active('ecommerce'))
-                        @if (EcommerceHelper::isOrderTrackingEnabled())
-                            <li><a href="{{ route('public.orders.tracking') }}"><i class="icon-check-square"></i> <span>{{ __('Track your order') }}</span></a></li>
-                        @endif
                         @if (EcommerceHelper::isCompareEnabled())
                             <li><a href="{{ route('public.compare') }}"><i class="icon-chart-bars"></i> <span>{{ __('Compare') }}</span></a></li>
                         @endif
                         @if (EcommerceHelper::isWishlistEnabled())
                             <li><a href="{{ route('public.wishlist') }}"><i class="icon-heart"></i> <span>{{ __('Wishlist') }}</span></a></li>
-                        @endif
-                        @if (count($currencies) > 1)
-                            <li class="menu-item-has-children">
-                                <a href="#"><span>{{ get_application_currency()->title }}</span></a>
-                                <span class="sub-toggle"></span>
-                                <ul class="sub-menu">
-                                    @foreach ($currencies as $currency)
-                                        @if ($currency->id !== get_application_currency_id())
-                                            <li><a href="{{ route('public.change-currency', $currency->title) }}"><span>{{ $currency->title }}</span></a></li>
-                                        @endif
-                                    @endforeach
-                                </ul>
-                            </li>
                         @endif
                     @endif
 

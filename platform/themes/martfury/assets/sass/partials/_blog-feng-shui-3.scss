@@ -1,0 +1,351 @@
+.blog-feng-shui-3 {
+    padding: 40px 32px 56px;
+    background: #faf9f7;
+    color: #594e4c;
+    letter-spacing: 0;
+
+    &__inner {
+        width: max(1200px, 80vw);
+        max-width: 100%;
+        margin: 0 auto;
+    }
+    &__intro {
+        display: grid;
+        grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+        align-items: center;
+        gap: 36px;
+    }
+    &__copy,
+    &__visual {
+        min-width: 0;
+    }
+
+    .blog-feng-shui-3__eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        max-width: 100%;
+        margin: 0 0 22px;
+        padding: 5px 12px;
+        border-radius: 4px;
+        background: #eeecea;
+        color: #594e4c;
+        font-size: 10px;
+        line-height: 1.5;
+        text-transform: uppercase;
+        > span {
+            flex-shrink: 0;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #826300;
+        }
+    }
+    .blog-feng-shui-3__title {
+        max-width: 600px;
+        margin: 0 0 16px;
+        color: #500e16;
+        font:
+            700 34px/1.2 Georgia,
+            'Times New Roman',
+            serif;
+        letter-spacing: 0;
+        overflow-wrap: anywhere;
+    }
+    .blog-feng-shui-3__description {
+        margin: 0;
+        color: #594e4c;
+        font-size: 15px;
+        line-height: 1.7;
+        white-space: pre-line;
+    }
+
+    &__quote {
+        display: flex;
+        align-items: flex-start;
+        gap: 18px;
+        margin-top: 22px;
+        padding: 22px;
+        border-radius: 6px;
+        background: #f3f2f0;
+        > div {
+            min-width: 0;
+        }
+        h3 {
+            margin: 0 0 8px;
+            color: #500e16;
+            font:
+                700 18px/1.4 Georgia,
+                'Times New Roman',
+                serif;
+            letter-spacing: 0;
+        }
+        p {
+            margin: 0;
+            color: #594e4c;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-line;
+        }
+    }
+    &__quote-icon {
+        display: grid;
+        flex-shrink: 0;
+        place-items: center;
+        width: 48px;
+        height: 48px;
+        border-radius: 3px;
+        background: #661e23;
+        .icon {
+            width: 28px;
+            height: 28px;
+            color: #f0d484;
+        }
+    }
+    &__actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: stretch;
+        gap: 14px;
+        margin-top: 26px;
+    }
+    &__button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        min-height: 48px;
+        max-width: 100%;
+        padding: 12px 18px;
+        border: 1px solid transparent;
+        border-radius: 3px;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1.5;
+        letter-spacing: 0;
+        text-align: center;
+        text-decoration: none;
+        .icon {
+            flex-shrink: 0;
+            width: 17px;
+            height: 17px;
+            color: #826300;
+        }
+        &.is-primary {
+            background: #500e16;
+            color: #fff;
+            box-shadow: 0 2px 4px rgba(80, 14, 22, 0.12);
+            .icon {
+                color: #f0d484;
+            }
+            &:hover {
+                background: #6b1d25;
+            }
+        }
+        &.is-secondary {
+            background: #eeecea;
+            color: #262626;
+            &:hover {
+                background: #e4e1de;
+            }
+        }
+        &:focus-visible {
+            outline: 2px solid #826300;
+            outline-offset: 3px;
+        }
+    }
+
+    &__visual {
+        position: relative;
+        padding-bottom: 26px;
+    }
+    &__figure {
+        position: relative;
+        margin: 0;
+        overflow: hidden;
+        border-radius: 8px;
+        background: #eeecea;
+        box-shadow: 0 6px 18px rgba(45, 30, 25, 0.08);
+        img {
+            display: block;
+            width: 100%;
+            height: auto;
+            aspect-ratio: 1 / 1.03;
+            object-fit: cover;
+        }
+        figcaption {
+            position: absolute;
+            inset: auto 0 0;
+            padding: 54px 22px 66px;
+            background: linear-gradient(transparent, rgba(45, 8, 12, 0.92));
+            color: #fff;
+            span {
+                display: block;
+                color: #f0d484;
+                font-size: 10px;
+                line-height: 1.5;
+                text-transform: uppercase;
+            }
+            p {
+                margin: 5px 0 0;
+                color: #fff;
+                font:
+                    400 20px/1.35 Georgia,
+                    'Times New Roman',
+                    serif;
+                letter-spacing: 0;
+            }
+        }
+    }
+    &__badge {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: calc(100% - 38px);
+        max-width: 350px;
+        margin: -46px 0 -26px -18px;
+        padding: 14px;
+        border-radius: 6px;
+        background: #fff;
+        box-shadow: 0 5px 15px rgba(35, 25, 25, 0.1);
+        > div {
+            min-width: 0;
+        }
+        strong {
+            display: block;
+            color: #500e16;
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+        p {
+            margin: 0;
+            color: #594e4c;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+    }
+    &__badge-icon {
+        display: grid;
+        flex-shrink: 0;
+        place-items: center;
+        width: 42px;
+        height: 42px;
+        border-radius: 6px;
+        background: #fff4d8;
+        .icon {
+            width: 23px;
+            height: 23px;
+            color: #826300;
+        }
+    }
+    &__stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        align-items: stretch;
+        gap: 20px;
+        margin-top: 64px;
+    }
+    &__stat {
+        min-width: 0;
+        padding: 24px;
+        border-radius: 6px;
+        background: #f3f2f0;
+        h3 {
+            margin: 18px 0 10px;
+            color: #500e16;
+            font:
+                700 32px/1.15 Georgia,
+                'Times New Roman',
+                serif;
+            letter-spacing: 0;
+            overflow-wrap: anywhere;
+        }
+        p {
+            margin: 0;
+            color: #594e4c;
+            font-size: 12px;
+            line-height: 1.6;
+            white-space: pre-line;
+        }
+    }
+    &__stat-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        .icon {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            color: #826300;
+        }
+        span {
+            color: #594e4c;
+            font-size: 10px;
+            line-height: 1.5;
+            text-align: right;
+            text-transform: uppercase;
+        }
+    }
+}
+
+@media (max-width: 991px) {
+    .blog-feng-shui-3 {
+        &__intro {
+            gap: 28px;
+        }
+        .blog-feng-shui-3__title {
+            font-size: 30px;
+        }
+        &__stats {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            margin-top: 48px;
+        }
+        &__quote {
+            gap: 12px;
+            padding: 16px;
+        }
+    }
+}
+@media (max-width: 767px) {
+    .blog-feng-shui-3 {
+        padding: 32px 18px 40px;
+        &__intro {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 32px;
+        }
+        .blog-feng-shui-3__title {
+            font-size: 28px;
+        }
+        &__figure img {
+            aspect-ratio: 4 / 3;
+        }
+        &__badge {
+            width: calc(100% - 28px);
+            margin-left: 14px;
+        }
+        &__stats {
+            gap: 14px;
+            margin-top: 32px;
+        }
+        &__stat {
+            padding: 18px;
+            h3 {
+                font-size: 27px;
+            }
+        }
+    }
+}
+@media (max-width: 479px) {
+    .blog-feng-shui-3 {
+        &__stats {
+            grid-template-columns: minmax(0, 1fr);
+        }
+        &__actions {
+            flex-direction: column;
+        }
+    }
+}

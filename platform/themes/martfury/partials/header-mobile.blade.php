@@ -9,14 +9,6 @@
             <div class="navigation__right">
                 <div class="header__actions">
                     {!! apply_filters('before_theme_header_mobile_actions', null) !!}
-                    <div class="ps-cart--mini">
-                        <a class="header__extra btn-shopping-cart" href="{{ route('public.cart') }}">
-                            <i class="icon-bag2"></i><span><i>{{ Cart::instance('cart')->count() }}</i></span>
-                        </a>
-                        <div class="ps-cart--mobile">
-                            {!! Theme::partial('cart') !!}
-                        </div>
-                    </div>
                     {!! apply_filters('after_theme_header_mobile_actions', null) !!}
                     <div class="ps-block--user-header">
                         <div class="ps-block__left"><a href="{{ route('customer.overview') }}"><i class="icon-user"></i></a></div>

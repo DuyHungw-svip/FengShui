@@ -6,6 +6,7 @@ use Botble\Base\Enums\BaseStatusEnum;
 use Botble\Base\Facades\BaseHelper;
 use Botble\Base\Facades\EmailHandler;
 use Botble\Base\Http\Responses\BaseHttpResponse;
+use Botble\Contact\Services\ContactService;
 use Botble\Ecommerce\Facades\Cart;
 use Botble\Ecommerce\Facades\EcommerceHelper;
 use Botble\Ecommerce\Repositories\Interfaces\ProductCategoryInterface;
@@ -15,6 +16,7 @@ use Botble\Newsletter\Forms\Fronts\NewsletterForm;
 use Botble\Theme\Facades\Theme;
 use Botble\Theme\Http\Controllers\PublicController;
 use Illuminate\Http\Request;
+use Theme\Martfury\Http\Requests\FengShuiConsultationRequest;
 use Theme\Martfury\Http\Requests\SendDownloadAppLinksRequest;
 
 class MartfuryController extends PublicController
@@ -95,6 +97,34 @@ class MartfuryController extends PublicController
             ->sendUsingTemplate('download_app', $request->input('email'), [], false, 'themes', __('Download apps'));
 
         return $this->httpResponse->setMessage(__('We sent an email with download links to your email, please check it!'));
+    }
+
+    public function sendFengShuiConsultation(FengShuiConsultationRequest $request, ContactService $service)
+    {
+        $data = $request->validated();
+        $specialty = FengShuiConsultationRequest::specialties()[$data['specialty']];
+        $method = FengShuiConsultationRequest::methods()[$data['consultation_method']][0];
+
+        // Only validated consultation data may reach the contact model.
+        $request->replace([
+            ...$data,
+            'email' => $data['email'] ?? '',
+            'content' => $data['content'] ?? 'Đăng ký đặt lịch tư vấn phong thủy.',
+            'subject' => 'Đặt lịch tư vấn: '.$specialty,
+            'custom_fields' => [
+                'Ngày sinh (Dương lịch)' => \Carbon\Carbon::createFromFormat('Y-m-d', $data['birth_date'])->format('d/m/Y'),
+                'Giờ sinh' => $data['birth_time'] ?? '',
+                'Năm sinh âm lịch' => $data['lunar_birth_year'] ?? '',
+                'Hạng mục tư vấn' => $specialty,
+                'Hình thức tham vấn' => $method,
+            ],
+        ]);
+
+        $result = $service->sendContact($request);
+
+        return $result['success']
+            ? $this->httpResponse->setMessage('Đã nhận yêu cầu đặt lịch tư vấn. Chúng tôi sẽ liên hệ với bạn qua số điện thoại đã cung cấp.')
+            : $this->httpResponse->setError()->setMessage($result['message']);
     }
 
     public function ajaxGetProductsByCollection(int|string $id, Request $request)

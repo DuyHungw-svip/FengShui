@@ -1,0 +1,158 @@
+.card-feng-shui {
+    padding: 42px 32px 32px;
+    background: #f5f4f2;
+    color: #594e4c;
+    letter-spacing: 0;
+
+    &__inner {
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    &__header {
+        margin: 0 auto 42px;
+        text-align: center;
+    }
+
+    .card-feng-shui__eyebrow {
+        margin: 0 0 14px;
+        color: #826300;
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 1.5;
+        text-transform: uppercase;
+    }
+
+    .card-feng-shui__title {
+        margin: 0 0 12px;
+        color: #500e16;
+        font: 700 28px/1.3 Georgia, 'Times New Roman', serif;
+        letter-spacing: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .card-feng-shui__subtitle {
+        max-width: 720px;
+        margin: 0 auto;
+        color: #594e4c;
+        font-size: 14px;
+        line-height: 1.6;
+        white-space: pre-line;
+    }
+
+    &__grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        align-items: stretch;
+        gap: 28px;
+    }
+
+    &__card {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        min-width: 0;
+        min-height: 336px;
+        padding: 28px;
+        border: 1px solid #eeecea;
+        border-radius: 8px;
+        background: #faf9f7;
+
+        h3 {
+            margin: 16px 0 14px;
+            color: #500e16;
+            font: 700 19px/1.35 Georgia, 'Times New Roman', serif;
+            letter-spacing: 0;
+            overflow-wrap: anywhere;
+        }
+    }
+
+    &__icon {
+        display: grid;
+        flex-shrink: 0;
+        place-items: center;
+        width: 50px;
+        height: 50px;
+        border-radius: 3px;
+        background: #eeecea;
+
+        .icon {
+            width: 27px;
+            height: 27px;
+            color: #826300;
+        }
+    }
+
+    .card-feng-shui__description {
+        margin: 0;
+        color: #594e4c;
+        font-size: 13px;
+        line-height: 1.6;
+        white-space: pre-line;
+        overflow-wrap: anywhere;
+    }
+
+    .card-feng-shui__note {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        width: 100%;
+        margin: auto 0 0;
+        padding-top: 28px;
+        color: #826300;
+        font-size: 11px;
+        font-weight: 500;
+        line-height: 1.6;
+
+        .icon {
+            flex-shrink: 0;
+            width: 14px;
+            height: 14px;
+            margin-top: 2px;
+        }
+    }
+}
+
+@media (max-width: 991px) {
+    .card-feng-shui {
+        &__grid {
+            gap: 18px;
+        }
+
+        &__card {
+            padding: 22px;
+        }
+    }
+}
+
+@media (max-width: 767px) {
+    .card-feng-shui {
+        padding: 32px 18px;
+
+        &__header {
+            margin-bottom: 28px;
+        }
+
+        .card-feng-shui__title {
+            font-size: 25px;
+        }
+
+        .card-feng-shui__subtitle {
+            font-size: 13px;
+        }
+
+        &__grid {
+            grid-template-columns: minmax(0, 1fr);
+            gap: 16px;
+        }
+
+        &__card {
+            min-height: 0;
+            padding: 24px;
+        }
+
+        .card-feng-shui__note {
+            padding-top: 24px;
+        }
+    }
+}

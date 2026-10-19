@@ -2,6 +2,7 @@
 
 use Botble\Ads\Facades\AdsManager;
 use Botble\Base\Facades\EmailHandler;
+use Botble\Blog\Models\Post;
 use Botble\Ecommerce\Facades\EcommerceHelper;
 use Botble\Ecommerce\Facades\FlashSale;
 use Botble\Ecommerce\Supports\FlashSaleSupport;
@@ -9,6 +10,40 @@ use Botble\Media\Facades\RvMedia;
 use Botble\Theme\Facades\Theme;
 use Botble\Theme\Supports\ThemeSupport;
 use Botble\Widget\Events\RenderingWidgetSettings;
+use Illuminate\Support\Collection;
+
+if (! function_exists('theme_get_feng_shui_posts')) {
+    function theme_get_feng_shui_posts(array $slots): Collection
+    {
+        if (! is_plugin_active('blog')) {
+            return collect();
+        }
+
+        $ids = array_filter(array_map('intval', $slots), fn (int $id) => $id > 0);
+        $relations = ['slugable', 'categories', 'author', 'metadata'];
+        $selected = $ids
+            ? Post::query()->wherePublished()->whereIn('id', $ids)->with($relations)->get()->keyBy('id')
+            : collect();
+        $automaticCount = count($slots) - count($ids);
+        $automatic = $automaticCount
+            ? Post::query()->wherePublished()->whereNotIn('id', $ids)->with($relations)
+                ->orderByDesc('created_at')->orderByDesc('id')->limit($automaticCount)->get()
+            : collect();
+        $posts = collect();
+        $used = [];
+
+        foreach ($slots as $slot => $id) {
+            $post = (int) $id > 0 ? $selected->get((int) $id) : $automatic->shift();
+
+            if ($post && ! in_array($post->id, $used, true)) {
+                $posts->put($slot, $post);
+                $used[] = $post->id;
+            }
+        }
+
+        return $posts;
+    }
+}
 
 if (! function_exists('theme_get_autoplay_speed_options')) {
     function theme_get_autoplay_speed_options(): array

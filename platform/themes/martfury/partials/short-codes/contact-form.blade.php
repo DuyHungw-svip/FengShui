@@ -1,3 +1,6 @@
+@if ($shortcode->style === 'consultation')
+    @include(Theme::getThemeNamespace() . '::partials.short-codes.contact-consultation')
+@else
 <div class="ps-contact-form">
     <div class="container">
         <h3>{{ __('Get In Touch') }}</h3>
@@ -22,3 +25,4 @@
 
     </div>
 </div>
+@endif
